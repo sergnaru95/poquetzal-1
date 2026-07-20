@@ -11,29 +11,36 @@
         .file-list { list-style: none; padding: 0; margin: 0; }
         .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid #f1f5f9; transition: background 0.2s; }
         .file-item:hover { background-color: #f8fafc; }
-        .file-info { display: flex; align-items: center; gap: 10px; }
+        .file-info { display: flex; align-items: center; gap: 10px; word-break: break-all; }
         .file-name { font-weight: 500; color: #0f172a; }
-        .actions { display: flex; gap: 10px; }
-        .btn { padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; }
+        .actions { display: flex; gap: 10px; flex-shrink: 0; margin-left: 10px; }
+        .btn { padding: 6px 12px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
         .btn-view { background-color: #2563eb; color: white; }
         .btn-view:hover { background-color: #1d4ed8; }
         .btn-direct { background-color: #f1f5f9; color: #475569; }
         .btn-direct:hover { background-color: #e2e8f0; }
-        iframe { width: 100%; height: 600px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 20px; display: none; }
+        
+        /* Contenedor dinámico de medios */
+        #contenedorVisor { margin-top: 20px; width: 100%; display: none; }
+        iframe, video, img { width: 100%; border-radius: 8px; border: 1px solid #cbd5e1; }
+        iframe { height: 600px; }
+        video { max-height: 500px; background-color: #000; }
+        img { max-height: 600px; object-fit: contain; }
         .loading { color: #64748b; font-style: italic; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🗂️ Explorador de Archivos Automático</h1>
+    <h1>📁 Explorador de Archivos Automático</h1>
     <div id="loading" class="loading">Cargando archivos desde el repositorio...</div>
     <ul class="file-list" id="listaArchivos"></ul>
-    <iframe id="visorGoogle"></iframe>
+    
+    <!-- Visor integrado donde se reproducirán los videos o documentos -->
+    <div id="contenedorVisor"></div>
 </div>
 
 <script>
-    // CONFIGURACIÓN: Cambia estos datos si usas otro usuario o repositorio
     const USUARIO_GITHUB = 'sergnaru95';
     const REPOSITORIO = 'poquetzal-1';
 
@@ -47,29 +54,41 @@
             const listaUI = document.getElementById('listaArchivos');
             document.getElementById('loading').style.display = 'none';
             
-            // Extensiones que abriremos con el visor de Google Docs
             const extensionesDocumento = ['docx', 'xlsx', 'pptx', 'pdf', 'doc', 'xls', 'ppt'];
+            const extensionesVideo = ['mp4', 'webm', 'mov', 'mkv', 'avi'];
+            const extensionesImagen = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
             archivos.forEach(archivo => {
-                // Ignoramos el propio index.html y archivos ocultos
                 if (archivo.name.toLowerCase() === 'index.html' || archivo.name.startsWith('.')) {
                     return;
                 }
 
                 const extension = archivo.name.split('.').pop().toLowerCase();
                 const esDocumento = extensionesDocumento.includes(extension);
+                const esVideo = extensionesVideo.includes(extension);
+                const esImagen = extensionesImagen.includes(extension);
 
                 const li = document.createElement('li');
                 li.className = 'file-item';
 
-                // Determinar el texto del botón según el tipo de archivo
                 let textoBoton = 'Abrir / Ver';
+                let accionBoton = '';
+
                 if (esDocumento) {
                     if (['xlsx', 'xls'].includes(extension)) textoBoton = 'Ver en Google Sheets';
                     else if (['pptx', 'ppt'].includes(extension)) textoBoton = 'Ver en Google Slides';
                     else textoBoton = 'Ver en Google Docs';
-                } else if (['mp3', 'wav', 'ogg'].includes(extension)) {
-                    textoBoton = 'Escuchar Audio';
+                    
+                    accionBoton = `verDocumento('${archivo.download_url}')`;
+                } else if (esVideo) {
+                    textoBoton = 'Abrir / Ver';
+                    accionBoton = `verVideo('${archivo.download_url}')`;
+                } else if (esImagen) {
+                    textoBoton = 'Abrir / Ver';
+                    accionBoton = `verImagen('${archivo.download_url}')`;
+                } else {
+                    textoBoton = 'Abrir / Ver';
+                    accionBoton = `window.open('${archivo.download_url}', '_blank')`;
                 }
 
                 li.innerHTML = `
@@ -77,11 +96,8 @@
                         <span class="file-name">${archivo.name}</span>
                     </div>
                     <div class="actions">
-                        ${esDocumento ? 
-                            `<button class="btn btn-view" onclick="verDocumento('${archivo.name}')">${textoBoton}</button>` : 
-                            `<a class="btn btn-view" href="${archivo.name}" target="_blank">${textoBoton}</a>`
-                        }
-                        <a class="btn btn-direct" href="${archivo.name}" target="_blank">Descarga Directa</a>
+                        <button class="btn btn-view" onclick="${accionBoton}">${textoBoton}</button>
+                        <a class="btn btn-direct" href="${archivo.download_url}" download target="_blank">Descarga Directa</a>
                     </div>
                 `;
                 listaUI.appendChild(li);
@@ -92,17 +108,35 @@
         }
     }
 
-    function verDocumento(nombreArchivo) {
-        const urlPublicaArchivo = window.location.origin + '/' + encodeURIComponent(nombreArchivo);
-        const urlVisor = 'https://docs.google.com/viewer?url=' + encodeURIComponent(urlPublicaArchivo) + '&embedded=true';
-        
-        const iframe = document.getElementById('visorGoogle');
-        iframe.src = urlVisor;
-        iframe.style.display = 'block';
-        iframe.scrollIntoView({ behavior: 'smooth' });
+    // Función para ver Documentos
+    function verDocumento(urlRaw) {
+        const visor = document.getElementById('contenedorVisor');
+        const urlVisor = 'https://docs.google.com/viewer?url=' + encodeURIComponent(urlRaw) + '&embedded=true';
+        visor.innerHTML = `<iframe src="${urlVisor}"></iframe>`;
+        visor.style.display = 'block';
+        visor.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Ejecutar al cargar la página
+    // Función para reproducir Videos sin importar el tamaño (+2 MB)
+    function verVideo(urlRaw) {
+        const visor = document.getElementById('contenedorVisor');
+        visor.innerHTML = `
+            <video controls autoplay name="media">
+                <source src="${urlRaw}" type="video/mp4">
+                Tu navegador no soporta reproducción de video.
+            </video>`;
+        visor.style.display = 'block';
+        visor.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Función para visualizar Imágenes
+    function verImagen(urlRaw) {
+        const visor = document.getElementById('contenedorVisor');
+        visor.innerHTML = `<img src="${urlRaw}" alt="Vista previa">`;
+        visor.style.display = 'block';
+        visor.scrollIntoView({ behavior: 'smooth' });
+    }
+
     cargarArchivos();
 </script>
 
