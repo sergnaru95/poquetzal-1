@@ -11,21 +11,21 @@
         h1 { font-size: 20px; color: #1e293b; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
         .file-list { list-style: none; padding: 0; margin: 0; }
         
-        /* FILA DEL ARCHIVO: Ajuste responsivo para teléfonos */
+        /* FILA DEL ARCHIVO: Todo en una sola línea horizontal */
         .file-item { 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
             padding: 12px 8px; 
             border-bottom: 1px solid #f1f5f9; 
-            gap: 10px;
+            gap: 8px;
         }
         .file-item:hover { background-color: #f8fafc; }
         
-        /* CONTENEDOR DEL NOMBRE: Recorta nombres demasiado largos */
+        /* CONTENEDOR DEL NOMBRE: Recorta el nombre si no cabe a la izquierda */
         .file-info { 
             flex: 1; 
-            min-width: 0; /* Permite que el texto se recorte si es muy largo */
+            min-width: 0; 
         }
         .file-name { 
             font-weight: 500; 
@@ -34,18 +34,18 @@
             overflow: hidden; 
             text-overflow: ellipsis; 
             display: block; 
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        /* CONTENEDOR DE BOTONES */
+        /* CONTENEDOR DE BOTONES: Fijos a la derecha sin romper línea */
         .actions { 
             display: flex; 
-            gap: 8px; 
-            flex-shrink: 0; /* Evita que los botones se aplasten */
+            gap: 6px; 
+            flex-shrink: 0; 
         }
         
         .btn { 
-            padding: 8px 12px; 
+            padding: 6px 10px; 
             border-radius: 6px; 
             font-size: 12px; 
             text-decoration: none; 
@@ -69,18 +69,6 @@
         video { max-height: 450px; background-color: #000; }
         img { max-height: 500px; object-fit: contain; }
         .loading { color: #64748b; font-style: italic; }
-
-        /* Ajuste para pantallas muy estrechas */
-        @media (max-width: 480px) {
-            .file-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .actions {
-                width: 100%;
-                justify-content: flex-end;
-            }
-        }
     </style>
 </head>
 <body>
