@@ -32,12 +32,15 @@
         .category-title { font-size: 14px; text-transform: uppercase; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
         .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 
-        /* VISTA 4: VISTA CUADRÍCULA / GRID MODIFICADA */
+        /* VISTA 4: VISTA CUADRÍCULA / GRID CON VISTA PREVIA PRELIMINAR */
         .view-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
-        .list-item { background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; font-size: 12px; word-break: break-all; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+        .list-item { background: #1e293b; padding: 8px; border-radius: 8px; border: 1px solid #334155; font-size: 11px; word-break: break-all; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+        .grid-preview { width: 100%; height: 90px; border-radius: 6px; overflow: hidden; background: #0f172a; display: flex; align-items: center; justify-content: center; }
+        .grid-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .grid-preview video { width: 100%; height: 100%; object-fit: cover; }
 
         /* Botones globales de acción */
-        .btn-action { padding: 4px 8px; font-size: 11px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; display: inline-block; text-align: center; }
+        .btn-action { padding: 4px 6px; font-size: 10px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; display: inline-block; text-align: center; }
         .btn-sec { background: #475569; }
         .hidden { display: none !important; }
     </style>
@@ -167,17 +170,32 @@
         container.innerHTML = html;
     }
 
+    /* VISTA LISTA / GRID CON MINIATURA PRELIMINAR */
     function renderList() {
         const container = document.getElementById('viewList');
-        container.innerHTML = globalFiles.map(f => `
-            <div class="list-item">
-                <strong>${f.name}</strong>
-                <div style="display:flex; gap:4px; margin-top:6px;">
-                    <a class="btn-action" href="${f.download_url}" target="_blank" style="flex:1;">Abrir</a>
-                    <a class="btn-action btn-sec" href="${f.download_url}" download style="flex:1;">Descargar</a>
+        container.innerHTML = globalFiles.map(f => {
+            const type = getType(f.name);
+            let thumb = `<div class="grid-preview">📄</div>`;
+            
+            if (type === 'imagen') {
+                thumb = `<div class="grid-preview"><img src="${f.download_url}" loading="lazy"></div>`;
+            } else if (type === 'video') {
+                thumb = `<div class="grid-preview"><video src="${f.download_url}#t=0.1" preload="metadata"></video></div>`;
+            } else if (type === 'audio') {
+                thumb = `<div class="grid-preview">🎵</div>`;
+            }
+
+            return `
+                <div class="list-item">
+                    ${thumb}
+                    <strong style="font-size:11px; line-height:1.2;">${f.name}</strong>
+                    <div style="display:flex; gap:4px; margin-top:4px;">
+                        <a class="btn-action" href="${f.download_url}" target="_blank" style="flex:1;">Abrir</a>
+                        <a class="btn-action btn-sec" href="${f.download_url}" download style="flex:1;">Descargar</a>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function switchView(viewName) {
