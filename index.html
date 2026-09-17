@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador Automático</title>
+    <title>Visualizador Automático Poquetzal-1</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; margin: 0; padding: 15px; color: #333; }
@@ -19,7 +19,7 @@
 
         .file-list { list-style: none; padding: 0; margin: 0; }
 
-        /* VISTA LISTA (Nombre completo sin recortar + Botones pegados al final) */
+        /* VISTA LISTA (Sin recortes, texto completo + botones pegados) */
         .file-list.list-view .file-item { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; word-break: break-all; }
         .file-list.list-view .preview-box { display: none; }
         .file-list.list-view .file-info { display: inline; }
@@ -69,8 +69,8 @@
 </div>
 
 <script>
-    const USUARIO_GITHUB = 'tu-usuario';
-    const REPOSITORIO = 'tu-repositorio';
+    const USUARIO_GITHUB = 'sergnaru95';
+    const REPOSITORIO = 'poquetzal-1';
 
     const urlApi = `https://api.github.com/repos/${USUARIO_GITHUB}/${REPOSITORIO}/contents/`;
 
@@ -184,4 +184,3 @@
 
 </body>
 </html>
-
