@@ -20,13 +20,13 @@
         /* Lista base */
         .file-list { list-style: none; padding: 0; margin: 0; }
 
-        /* MODO LISTA */
-        .file-list.list-view .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid #f1f5f9; gap: 10px; }
+        /* MODO LISTA ALINEADA */
+        .file-list.list-view .file-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 8px; border-bottom: 1px solid #f1f5f9; gap: 12px; }
         .file-list.list-view .file-item:hover { background-color: #f8fafc; }
         .file-list.list-view .preview-box { display: none; }
-        .file-list.list-view .file-info { min-width: 0; flex: 1; }
+        .file-list.list-view .file-info { min-width: 0; flex: 1; overflow: hidden; }
         .file-list.list-view .file-name { font-weight: 500; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        .file-list.list-view .actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .file-list.list-view .actions { display: flex; gap: 6px; flex-shrink: 0; margin-left: auto; }
 
         /* MODO CUADRÍCULA (GRID) */
         .file-list.grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-top: 15px; }
@@ -49,9 +49,7 @@
         iframe { width: 100%; height: 600px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 20px; display: none; }
         .loading { color: #64748b; font-style: italic; }
 
-        @media (max-width: 480px) {
-            .file-list.list-view .file-item { flex-direction: column; align-items: flex-start; }
-            .file-list.list-view .actions { width: 100%; justify-content: flex-start; margin-top: 6px; }
+        @media (max-width: 600px) {
             .file-list.grid-view { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
         }
     </style>
