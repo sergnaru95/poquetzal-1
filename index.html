@@ -3,183 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizador Automático Poquetzal-1</title>
+    <title>Visualizador Multi-Vista</title>
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f6f9; margin: 0; padding: 15px; color: #333; }
-        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 15px; }
+        .container { max-width: 1100px; margin: 0 auto; }
         
-        /* Controles de Vista */
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; flex-wrap: wrap; gap: 10px; }
-        h1 { font-size: 20px; color: #1e293b; margin: 0; }
-        
-        .view-controls { display: flex; gap: 6px; }
-        .btn-toggle { padding: 6px 12px; font-size: 13px; border-radius: 6px; border: 1px solid #cbd5e1; background-color: #f8fafc; color: #475569; cursor: pointer; font-weight: 500; }
-        .btn-toggle.active { background-color: #2563eb; color: white; border-color: #2563eb; }
+        /* Encabezado y Selector de Vistas */
+        .header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid #334155; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        h1 { font-size: 18px; font-weight: 600; }
+        .controls { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn-tab { padding: 6px 12px; font-size: 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #94a3b8; cursor: pointer; }
+        .btn-tab.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-        .file-list { list-style: none; padding: 0; margin: 0; }
+        /* VISTA 1: PIZARRA (PADLET / MASONRY) */
+        .view-board { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .board-card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .board-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 6px; }
+        .board-card .title { font-size: 12px; font-weight: 600; word-break: break-all; }
 
-        /* VISTA LISTA (Sin recortes, texto completo + botones pegados) */
-        .file-list.list-view .file-item { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; word-break: break-all; }
-        .file-list.list-view .preview-box { display: none; }
-        .file-list.list-view .file-info { display: inline; }
-        .file-list.list-view .file-name { font-weight: 500; color: #0f172a; display: inline; margin-right: 8px; }
-        .file-list.list-view .actions { display: inline-flex; gap: 6px; vertical-align: middle; }
+        /* VISTA 2: CARRUSEL / GALERÍA DESLIZANTE */
+        .view-carousel { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 15px; scroll-snap-type: x mandatory; }
+        .carousel-item { flex: 0 0 280px; background: #1e293b; border-radius: 12px; padding: 10px; scroll-snap-align: start; border: 1px solid #334155; }
+        .carousel-item img, .carousel-item video { width: 100%; height: 320px; object-fit: cover; border-radius: 8px; }
 
-        /* VISTA CUADRÍCULA (GRID) */
-        .file-list.grid-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-top: 15px; }
-        .file-list.grid-view .file-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .file-list.grid-view .preview-box { width: 100%; height: 110px; background-color: #f1f5f9; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; }
-        .file-list.grid-view .preview-img { width: 100%; height: 100%; object-fit: cover; }
-        .file-list.grid-view .preview-icon { font-size: 32px; }
-        .file-list.grid-view .file-info { margin-bottom: 10px; text-align: center; }
-        .file-list.grid-view .file-name { font-size: 13px; font-weight: 500; word-break: break-all; line-height: 1.3; color: #0f172a; }
-        .file-list.grid-view .actions { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-        .file-list.grid-view .btn { width: 100%; text-align: center; }
+        /* VISTA 3: POR CATEGORÍAS */
+        .category-section { margin-bottom: 25px; }
+        .category-title { font-size: 14px; text-transform: uppercase; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
+        .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 
-        /* Botones generales */
-        .btn { padding: 6px 10px; border-radius: 6px; font-size: 12px; text-decoration: none; font-weight: 500; cursor: pointer; border: none; display: inline-block; white-space: nowrap; }
-        .btn-view { background-color: #2563eb; color: white; }
-        .btn-view:hover { background-color: #1d4ed8; }
-        .btn-direct { background-color: #f1f5f9; color: #475569; }
-        .btn-direct:hover { background-color: #e2e8f0; }
+        /* VISTA 4: LISTA COMPLETA ORIGINAL */
+        .view-list { display: flex; flex-direction: column; gap: 8px; }
+        .list-item { background: #1e293b; padding: 10px; border-radius: 6px; font-size: 13px; word-break: break-all; }
 
-        iframe { width: 100%; height: 600px; border: 1px solid #cbd5e1; border-radius: 8px; margin-top: 20px; display: none; }
-        .loading { color: #64748b; font-style: italic; }
-
-        @media (max-width: 600px) {
-            .file-list.grid-view { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-        }
+        /* Botones globales de acción */
+        .btn-action { padding: 4px 8px; font-size: 11px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; display: inline-block; margin-top: 4px; }
+        .btn-sec { background: #475569; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header-bar">
-        <h1>📁 Explorador de Archivos Automático</h1>
-        <div class="view-controls">
-            <button id="btnList" class="btn-toggle active" onclick="cambiarVista('list')">📄 Lista</button>
-            <button id="btnGrid" class="btn-toggle" onclick="cambiarVista('grid')">🔲 Cuadrícula</button>
+    <div class="header">
+        <h1>📌 Pizarra Multi-Vista</h1>
+        <div class="controls">
+            <button class="btn-tab active" onclick="switchView('board')">📋 Pizarra</button>
+            <button class="btn-tab" onclick="switchView('carousel')">🎞️ Carrusel</button>
+            <button class="btn-tab" onclick="switchView('categories')">🗂️ Por Tipos</button>
+            <button class="btn-tab" onclick="switchView('list')">📄 Lista</button>
         </div>
     </div>
 
-    <div id="loading" class="loading">Cargando archivos desde el repositorio...</div>
-    <ul class="file-list list-view" id="listaArchivos"></ul>
-    <iframe id="visorGoogle"></iframe>
+    <div id="loading">Cargando archivos del repositorio...</div>
+
+    <!-- Modos de Vista -->
+    <div id="viewBoard" class="view-board hidden"></div>
+    <div id="viewCarousel" class="view-carousel hidden"></div>
+    <div id="viewCategories" class="hidden"></div>
+    <div id="viewList" class="view-list hidden"></div>
 </div>
 
 <script>
-    const USUARIO_GITHUB = 'sergnaru95';
-    const REPOSITORIO = 'poquetzal-1';
+    const USUARIO = 'sergnaru95';
+    const REPO = 'poquetzal-1';
+    const API_URL = `https://api.github.com/repos/${USUARIO}/${REPO}/contents/`;
 
-    const urlApi = `https://api.github.com/repos/${USUARIO_GITHUB}/${REPOSITORIO}/contents/`;
+    let globalFiles = [];
 
-    async function cargarArchivos() {
+    async function init() {
         try {
-            const respuesta = await fetch(urlApi);
-            const archivos = await respuesta.json();
+            const res = await fetch(API_URL);
+            const data = await res.json();
             
-            const listaUI = document.getElementById('listaArchivos');
-            document.getElementById('loading').style.display = 'none';
+            // Filtra el index y archivos ocultos
+            globalFiles = data.filter(f => f.name.toLowerCase() !== 'index.html' && !f.name.startsWith('.'));
+            document.getElementById('loading').classList.add('hidden');
             
-            const extensionesDocumento = ['docx', 'xlsx', 'pptx', 'pdf', 'doc', 'xls', 'ppt'];
-            const extensionesVideo = ['mp4', 'webm', 'mov', 'mkv'];
-            const extensionesImagen = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-            const extensionesAudio = ['mp3', 'wav', 'ogg'];
-
-            archivos.forEach(archivo => {
-                if (archivo.name.toLowerCase() === 'index.html' || archivo.name.startsWith('.')) {
-                    return;
-                }
-
-                const extension = archivo.name.split('.').pop().toLowerCase();
-                const esDocumento = extensionesDocumento.includes(extension);
-                const esVideo = extensionesVideo.includes(extension);
-                const esImagen = extensionesImagen.includes(extension);
-                const esAudio = extensionesAudio.includes(extension);
-
-                const li = document.createElement('li');
-                li.className = 'file-item';
-
-                let textoBoton = 'Abrir / Ver';
-                if (esDocumento) {
-                    if (['xlsx', 'xls'].includes(extension)) textoBoton = 'Ver en Google Sheets';
-                    else if (['pptx', 'ppt'].includes(extension)) textoBoton = 'Ver en Google Slides';
-                    else textoBoton = 'Ver en Google Docs';
-                } else if (esAudio) {
-                    textoBoton = 'Escuchar Audio';
-                }
-
-                let botonVista;
-                if (esDocumento) {
-                    botonVista = `<button class="btn btn-view" onclick="verDocumento('${archivo.download_url}')">${textoBoton}</button>`;
-                } else if (esVideo) {
-                    botonVista = `<button class="btn btn-view" onclick="verMediaDirecto('${archivo.download_url}')">${textoBoton}</button>`;
-                } else {
-                    botonVista = `<a class="btn btn-view" href="${archivo.download_url}" target="_blank">${textoBoton}</a>`;
-                }
-
-                let previewHTML = '';
-                if (esImagen) {
-                    previewHTML = `<div class="preview-box"><img src="${archivo.download_url}" class="preview-img" alt="Vista previa"></div>`;
-                } else if (esVideo) {
-                    previewHTML = `<div class="preview-box"><span class="preview-icon">🎬</span></div>`;
-                } else if (esAudio) {
-                    previewHTML = `<div class="preview-box"><span class="preview-icon">🎵</span></div>`;
-                } else {
-                    previewHTML = `<div class="preview-box"><span class="preview-icon">📄</span></div>`;
-                }
-
-                li.innerHTML = `
-                    ${previewHTML}
-                    <div class="file-info">
-                        <span class="file-name" title="${archivo.name}">${archivo.name}</span>
-                    </div>
-                    <div class="actions">
-                        ${botonVista}
-                        <a class="btn btn-direct" href="${archivo.download_url}" download target="_blank">Descarga Directa</a>
-                    </div>
-                `;
-                listaUI.appendChild(li);
-            });
-        } catch (error) {
-            document.getElementById('loading').innerText = 'Error al cargar los archivos del repositorio.';
-            console.error(error);
+            renderAll();
+            switchView('board'); // Vista predeterminada
+        } catch (e) {
+            document.getElementById('loading').innerText = 'Error al cargar los datos de GitHub.';
         }
     }
 
-    function cambiarVista(tipo) {
-        const lista = document.getElementById('listaArchivos');
-        const btnList = document.getElementById('btnList');
-        const btnGrid = document.getElementById('btnGrid');
+    function getType(filename) {
+        const ext = filename.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'imagen';
+        if (['mp4', 'webm', 'mov'].includes(ext)) return 'video';
+        if (['mp3', 'wav', 'ogg'].includes(ext)) return 'audio';
+        return 'documento';
+    }
 
-        if (tipo === 'grid') {
-            lista.className = 'file-list grid-view';
-            btnGrid.classList.add('active');
-            btnList.classList.remove('active');
-        } else {
-            lista.className = 'file-list list-view';
-            btnList.classList.add('active');
-            btnGrid.classList.remove('active');
+    function renderAll() {
+        renderBoard();
+        renderCarousel();
+        renderCategories();
+        renderList();
+    }
+
+    /* 1. Modo Pizarra estilo Padlet */
+    function renderBoard() {
+        const container = document.getElementById('viewBoard');
+        container.innerHTML = globalFiles.map(f => {
+            const type = getType(f.name);
+            let media = `<div style="height:100px; background:#334155; border-radius:6px; display:flex; align-items:center; justify-content:center;">📄 ${type}</div>`;
+            if (type === 'imagen') media = `<img src="${f.download_url}" loading="lazy">`;
+            if (type === 'video') media = `<video src="${f.download_url}" controls style="width:100%; height:160px; object-fit:cover; border-radius:6px;"></video>`;
+
+            return `
+                <div class="board-card">
+                    ${media}
+                    <div class="title">${f.name}</div>
+                    <div>
+                        <a class="btn-action" href="${f.download_url}" target="_blank">Abrir</a>
+                        <a class="btn-action btn-sec" href="${f.download_url}" download>Descargar</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /* 2. Modo Carrusel Deslizante */
+    function renderCarousel() {
+        const container = document.getElementById('viewCarousel');
+        const mediaFiles = globalFiles.filter(f => ['imagen', 'video'].includes(getType(f.name)));
+        
+        container.innerHTML = mediaFiles.map(f => {
+            const type = getType(f.name);
+            const content = type === 'imagen' 
+                ? `<img src="${f.download_url}">` 
+                : `<video src="${f.download_url}" controls></video>`;
+
+            return `
+                <div class="carousel-item">
+                    ${content}
+                    <p style="font-size:12px; margin-top:6px;" class="title">${f.name}</p>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /* 3. Modo Separado por Tipos */
+    function renderCategories() {
+        const container = document.getElementById('viewCategories');
+        const groups = { imagen: [], video: [], documento: [], audio: [] };
+        
+        globalFiles.forEach(f => groups[getType(f.name)].push(f));
+
+        let html = '';
+        for (const [type, files] of Object.entries(groups)) {
+            if (files.length === 0) continue;
+            html += `
+                <div class="category-section">
+                    <div class="category-title">${type}s (${files.length})</div>
+                    <div class="category-grid">
+                        ${files.map(f => `
+                            <div class="board-card">
+                                <span class="title">${f.name}</span>
+                                <a class="btn-action" href="${f.download_url}" target="_blank">Abrir / Descargar</a>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        container.innerHTML = html;
+    }
+
+    /* 4. Modo Lista Corrida */
+    function renderList() {
+        const container = document.getElementById('viewList');
+        container.innerHTML = globalFiles.map(f => `
+            <div class="list-item">
+                <strong>${f.name}</strong>
+                <a class="btn-action" href="${f.download_url}" target="_blank">Abrir</a>
+                <a class="btn-action btn-sec" href="${f.download_url}" download>Descargar</a>
+            </div>
+        `).join('');
+    }
+
+    /* Alternar entre vistas */
+    function switchView(viewName) {
+        document.getElementById('viewBoard').classList.add('hidden');
+        document.getElementById('viewCarousel').classList.add('hidden');
+        document.getElementById('viewCategories').classList.add('hidden');
+        document.getElementById('viewList').classList.add('hidden');
+
+        document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+
+        if (viewName === 'board') {
+            document.getElementById('viewBoard').classList.remove('hidden');
+            event.target.classList.add('active');
+        } else if (viewName === 'carousel') {
+            document.getElementById('viewCarousel').classList.remove('hidden');
+            event.target.classList.add('active');
+        } else if (viewName === 'categories') {
+            document.getElementById('viewCategories').classList.remove('hidden');
+            event.target.classList.add('active');
+        } else if (viewName === 'list') {
+            document.getElementById('viewList').classList.remove('hidden');
+            event.target.classList.add('active');
         }
     }
 
-    function verDocumento(urlArchivo) {
-        const urlVisor = 'https://docs.google.com/viewer?url=' + encodeURIComponent(urlArchivo) + '&embedded=true';
-        const iframe = document.getElementById('visorGoogle');
-        iframe.src = urlVisor;
-        iframe.style.display = 'block';
-        iframe.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function verMediaDirecto(urlArchivo) {
-        const iframe = document.getElementById('visorGoogle');
-        iframe.src = urlArchivo;
-        iframe.style.display = 'block';
-        iframe.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    cargarArchivos();
+    init();
 </script>
 
 </body>
