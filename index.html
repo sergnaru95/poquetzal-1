@@ -32,12 +32,12 @@
         .category-title { font-size: 14px; text-transform: uppercase; color: #38bdf8; margin-bottom: 10px; border-bottom: 1px solid #334155; padding-bottom: 4px; }
         .category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
 
-        /* VISTA 4: LISTA COMPLETA ORIGINAL */
-        .view-list { display: flex; flex-direction: column; gap: 8px; }
-        .list-item { background: #1e293b; padding: 10px; border-radius: 6px; font-size: 13px; word-break: break-all; }
+        /* VISTA 4: VISTA CUADRÍCULA / GRID MODIFICADA */
+        .view-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .list-item { background: #1e293b; padding: 10px; border-radius: 8px; border: 1px solid #334155; font-size: 12px; word-break: break-all; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
 
         /* Botones globales de acción */
-        .btn-action { padding: 4px 8px; font-size: 11px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; display: inline-block; margin-top: 4px; }
+        .btn-action { padding: 4px 8px; font-size: 11px; background: #2563eb; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; display: inline-block; text-align: center; }
         .btn-sec { background: #475569; }
         .hidden { display: none !important; }
     </style>
@@ -51,7 +51,7 @@
             <button class="btn-tab active" onclick="switchView('board')">📋 Pizarra</button>
             <button class="btn-tab" onclick="switchView('carousel')">🎞️ Carrusel</button>
             <button class="btn-tab" onclick="switchView('categories')">🗂️ Por Tipos</button>
-            <button class="btn-tab" onclick="switchView('list')">📄 Lista</button>
+            <button class="btn-tab" onclick="switchView('list')">📄 Lista / Grid</button>
         </div>
     </div>
 
@@ -76,12 +76,11 @@
             const res = await fetch(API_URL);
             const data = await res.json();
             
-            // Filtra el index y archivos ocultos
             globalFiles = data.filter(f => f.name.toLowerCase() !== 'index.html' && !f.name.startsWith('.'));
             document.getElementById('loading').classList.add('hidden');
             
             renderAll();
-            switchView('board'); // Vista predeterminada
+            switchView('board');
         } catch (e) {
             document.getElementById('loading').innerText = 'Error al cargar los datos de GitHub.';
         }
@@ -102,7 +101,6 @@
         renderList();
     }
 
-    /* 1. Modo Pizarra estilo Padlet */
     function renderBoard() {
         const container = document.getElementById('viewBoard');
         container.innerHTML = globalFiles.map(f => {
@@ -124,7 +122,6 @@
         }).join('');
     }
 
-    /* 2. Modo Carrusel Deslizante */
     function renderCarousel() {
         const container = document.getElementById('viewCarousel');
         const mediaFiles = globalFiles.filter(f => ['imagen', 'video'].includes(getType(f.name)));
@@ -144,7 +141,6 @@
         }).join('');
     }
 
-    /* 3. Modo Separado por Tipos */
     function renderCategories() {
         const container = document.getElementById('viewCategories');
         const groups = { imagen: [], video: [], documento: [], audio: [] };
@@ -171,19 +167,19 @@
         container.innerHTML = html;
     }
 
-    /* 4. Modo Lista Corrida */
     function renderList() {
         const container = document.getElementById('viewList');
         container.innerHTML = globalFiles.map(f => `
             <div class="list-item">
                 <strong>${f.name}</strong>
-                <a class="btn-action" href="${f.download_url}" target="_blank">Abrir</a>
-                <a class="btn-action btn-sec" href="${f.download_url}" download>Descargar</a>
+                <div style="display:flex; gap:4px; margin-top:6px;">
+                    <a class="btn-action" href="${f.download_url}" target="_blank" style="flex:1;">Abrir</a>
+                    <a class="btn-action btn-sec" href="${f.download_url}" download style="flex:1;">Descargar</a>
+                </div>
             </div>
         `).join('');
     }
 
-    /* Alternar entre vistas */
     function switchView(viewName) {
         document.getElementById('viewBoard').classList.add('hidden');
         document.getElementById('viewCarousel').classList.add('hidden');
